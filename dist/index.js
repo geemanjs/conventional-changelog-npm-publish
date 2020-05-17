@@ -3838,26 +3838,6 @@ function authenticationPlugin(octokit, options) {
 
 /***/ }),
 
-/***/ 193:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-
-const Q = __webpack_require__(885)
-const parserOpts = __webpack_require__(239)
-const writerOpts = __webpack_require__(579)
-
-module.exports = function (config) {
-  return Q.all([parserOpts, writerOpts])
-    .spread((parserOpts, writerOpts) => {
-      return { parserOpts, writerOpts }
-    })
-}
-
-
-/***/ }),
-
 /***/ 197:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -14893,18 +14873,19 @@ const sh = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const commits_1 = __webpack_require__(792);
 const conventional_recommended_bump_1 = __importDefault(__webpack_require__(398));
-__webpack_require__(851);
+const conventional_recommended_bump_2 = __importDefault(__webpack_require__(995));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log(github.context.sha);
             console.log(github.context);
+            console.log(conventional_recommended_bump_2.default);
             const commits = commits_1.getCommitMessages();
             // const versionBump = commits.reduce((agg, commit) => {
             //   commit.type === ""
             // }, "patch")
             conventional_recommended_bump_1.default({
-                preset: 'conventionalcommits'
+                whatBump: conventional_recommended_bump_2.default().whatBump
             }, (error, recommendation) => {
                 console.log(error, recommendation);
             });
@@ -34885,330 +34866,6 @@ function getPageLinks (link) {
 
 /***/ }),
 
-/***/ 579:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-
-const addBangNotes = __webpack_require__(964)
-const compareFunc = __webpack_require__(739)
-const Q = __webpack_require__(885)
-const readFile = Q.denodeify(__webpack_require__(747).readFile)
-const resolve = __webpack_require__(622).resolve
-
-/**
- * Handlebar partials for various property substitutions based on commit context.
- */
-const owner = '{{#if this.owner}}{{~this.owner}}{{else}}{{~@root.owner}}{{/if}}'
-const host = '{{~@root.host}}'
-const repository = '{{#if this.repository}}{{~this.repository}}{{else}}{{~@root.repository}}{{/if}}'
-
-module.exports = function (config) {
-  config = defaultConfig(config)
-  const commitUrlFormat = expandTemplate(config.commitUrlFormat, {
-    host,
-    owner,
-    repository
-  })
-  const compareUrlFormat = expandTemplate(config.compareUrlFormat, {
-    host,
-    owner,
-    repository
-  })
-  const issueUrlFormat = expandTemplate(config.issueUrlFormat, {
-    host,
-    owner,
-    repository,
-    id: '{{this.issue}}',
-    prefix: '{{this.prefix}}'
-  })
-
-  return Q.all([
-    readFile(__webpack_require__.ab + "template.hbs", 'utf-8'),
-    readFile(__webpack_require__.ab + "header.hbs", 'utf-8'),
-    readFile(__webpack_require__.ab + "commit.hbs", 'utf-8'),
-    readFile(__webpack_require__.ab + "footer.hbs", 'utf-8')
-  ])
-    .spread((template, header, commit, footer) => {
-      const writerOpts = getWriterOpts(config)
-
-      writerOpts.mainTemplate = template
-      writerOpts.headerPartial = header
-        .replace(/{{compareUrlFormat}}/g, compareUrlFormat)
-      writerOpts.commitPartial = commit
-        .replace(/{{commitUrlFormat}}/g, commitUrlFormat)
-        .replace(/{{issueUrlFormat}}/g, issueUrlFormat)
-      writerOpts.footerPartial = footer
-
-      return writerOpts
-    })
-}
-
-function getWriterOpts (config) {
-  config = defaultConfig(config)
-  const typesLookup = {}
-  config.types.forEach(type => {
-    typesLookup[type.type] = type
-  })
-
-  return {
-    transform: (commit, context) => {
-      let discard = true
-      const issues = []
-      const typeKey = (commit.revert ? 'revert' : (commit.type || '')).toLowerCase()
-
-      // adds additional breaking change notes
-      // for the special case, test(system)!: hello world, where there is
-      // a '!' but no 'BREAKING CHANGE' in body:
-      addBangNotes(commit)
-
-      commit.notes.forEach(note => {
-        note.title = 'BREAKING CHANGES'
-        discard = false
-      })
-
-      // breaking changes attached to any type are still displayed.
-      if (discard && (typesLookup[typeKey] === undefined ||
-          typesLookup[typeKey].hidden)) return
-
-      if (typesLookup[typeKey]) commit.type = typesLookup[typeKey].section
-
-      if (commit.scope === '*') {
-        commit.scope = ''
-      }
-
-      if (typeof commit.hash === 'string') {
-        commit.shortHash = commit.hash.substring(0, 7)
-      }
-
-      if (typeof commit.subject === 'string') {
-        // Issue URLs.
-        config.issuePrefixes.join('|')
-        const issueRegEx = '(' + config.issuePrefixes.join('|') + ')' + '([0-9]+)'
-        const re = new RegExp(issueRegEx, 'g')
-
-        commit.subject = commit.subject.replace(re, (_, prefix, issue) => {
-          issues.push(prefix + issue)
-          const url = expandTemplate(config.issueUrlFormat, {
-            host: context.host,
-            owner: context.owner,
-            repository: context.repository,
-            id: issue,
-            prefix: prefix
-          })
-          return `[${prefix}${issue}](${url})`
-        })
-        // User URLs.
-        commit.subject = commit.subject.replace(/\B@([a-z0-9](?:-?[a-z0-9/]){0,38})/g, (_, user) => {
-          // TODO: investigate why this code exists.
-          if (user.includes('/')) {
-            return `@${user}`
-          }
-
-          const usernameUrl = expandTemplate(config.userUrlFormat, {
-            host: context.host,
-            owner: context.owner,
-            repository: context.repository,
-            user: user
-          })
-
-          return `[@${user}](${usernameUrl})`
-        })
-      }
-
-      // remove references that already appear in the subject
-      commit.references = commit.references.filter(reference => {
-        if (issues.indexOf(reference.prefix + reference.issue) === -1) {
-          return true
-        }
-
-        return false
-      })
-
-      return commit
-    },
-    groupBy: 'type',
-    // the groupings of commit messages, e.g., Features vs., Bug Fixes, are
-    // sorted based on their probable importance:
-    commitGroupsSort: (a, b) => {
-      const commitGroupOrder = ['Reverts', 'Performance Improvements', 'Bug Fixes', 'Features']
-      const gRankA = commitGroupOrder.indexOf(a.title)
-      const gRankB = commitGroupOrder.indexOf(b.title)
-      if (gRankA >= gRankB) {
-        return -1
-      } else {
-        return 1
-      }
-    },
-    commitsSort: ['scope', 'subject'],
-    noteGroupsSort: 'title',
-    notesSort: compareFunc
-  }
-}
-
-// merge user set configuration with default configuration.
-function defaultConfig (config) {
-  config = config || {}
-  config.types = config.types || [
-    { type: 'feat', section: 'Features' },
-    { type: 'feature', section: 'Features' },
-    { type: 'fix', section: 'Bug Fixes' },
-    { type: 'perf', section: 'Performance Improvements' },
-    { type: 'revert', section: 'Reverts' },
-    { type: 'docs', section: 'Documentation', hidden: true },
-    { type: 'style', section: 'Styles', hidden: true },
-    { type: 'chore', section: 'Miscellaneous Chores', hidden: true },
-    { type: 'refactor', section: 'Code Refactoring', hidden: true },
-    { type: 'test', section: 'Tests', hidden: true },
-    { type: 'build', section: 'Build System', hidden: true },
-    { type: 'ci', section: 'Continuous Integration', hidden: true }
-  ]
-  config.issueUrlFormat = config.issueUrlFormat ||
-    '{{host}}/{{owner}}/{{repository}}/issues/{{id}}'
-  config.commitUrlFormat = config.commitUrlFormat ||
-    '{{host}}/{{owner}}/{{repository}}/commit/{{hash}}'
-  config.compareUrlFormat = config.compareUrlFormat ||
-    '{{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}'
-  config.userUrlFormat = config.userUrlFormat ||
-    '{{host}}/{{user}}'
-  config.issuePrefixes = config.issuePrefixes || ['#']
-
-  return config
-}
-
-// expand on the simple mustache-style templates supported in
-// configuration (we may eventually want to use handlebars for this).
-function expandTemplate (template, context) {
-  let expanded = template
-  Object.keys(context).forEach(key => {
-    expanded = expanded.replace(new RegExp(`{{${key}}}`, 'g'), context[key])
-  })
-  return expanded
-}
-
-
-/***/ }),
-
-/***/ 593:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-var isObj = __webpack_require__(804);
-
-module.exports.get = function (obj, path) {
-	if (!isObj(obj) || typeof path !== 'string') {
-		return obj;
-	}
-
-	var pathArr = getPathSegments(path);
-
-	for (var i = 0; i < pathArr.length; i++) {
-		var descriptor = Object.getOwnPropertyDescriptor(obj, pathArr[i]) || Object.getOwnPropertyDescriptor(Object.prototype, pathArr[i]);
-		if (descriptor && !descriptor.enumerable) {
-			return;
-		}
-
-		obj = obj[pathArr[i]];
-
-		if (obj === undefined || obj === null) {
-			// `obj` is either `undefined` or `null` so we want to stop the loop, and
-			// if this is not the last bit of the path, and
-			// if it did't return `undefined`
-			// it would return `null` if `obj` is `null`
-			// but we want `get({foo: null}, 'foo.bar')` to equal `undefined` not `null`
-			if (i !== pathArr.length - 1) {
-				return undefined;
-			}
-
-			break;
-		}
-	}
-
-	return obj;
-};
-
-module.exports.set = function (obj, path, value) {
-	if (!isObj(obj) || typeof path !== 'string') {
-		return;
-	}
-
-	var pathArr = getPathSegments(path);
-
-	for (var i = 0; i < pathArr.length; i++) {
-		var p = pathArr[i];
-
-		if (!isObj(obj[p])) {
-			obj[p] = {};
-		}
-
-		if (i === pathArr.length - 1) {
-			obj[p] = value;
-		}
-
-		obj = obj[p];
-	}
-};
-
-module.exports.delete = function (obj, path) {
-	if (!isObj(obj) || typeof path !== 'string') {
-		return;
-	}
-
-	var pathArr = getPathSegments(path);
-
-	for (var i = 0; i < pathArr.length; i++) {
-		var p = pathArr[i];
-
-		if (i === pathArr.length - 1) {
-			delete obj[p];
-			return;
-		}
-
-		obj = obj[p];
-	}
-};
-
-module.exports.has = function (obj, path) {
-	if (!isObj(obj) || typeof path !== 'string') {
-		return false;
-	}
-
-	var pathArr = getPathSegments(path);
-
-	for (var i = 0; i < pathArr.length; i++) {
-		obj = obj[pathArr[i]];
-
-		if (obj === undefined) {
-			return false;
-		}
-	}
-
-	return true;
-};
-
-function getPathSegments(path) {
-	var pathArr = path.split('.');
-	var parts = [];
-
-	for (var i = 0; i < pathArr.length; i++) {
-		var p = pathArr[i];
-
-		while (p[p.length - 1] === '\\' && pathArr[i + 1] !== undefined) {
-			p = p.slice(0, -1) + '.';
-			p += pathArr[++i];
-		}
-
-		parts.push(p);
-	}
-
-	return parts;
-}
-
-
-/***/ }),
-
 /***/ 596:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -39166,56 +38823,6 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 
 /***/ }),
 
-/***/ 739:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-var arrayify = __webpack_require__(877);
-var dotPropGet = __webpack_require__(593).get;
-
-function compareFunc(prop) {
-  return function(a, b) {
-    var ret = 0;
-
-    arrayify(prop).some(function(el) {
-      var x;
-      var y;
-
-      if (typeof el === 'function') {
-        x = el(a);
-        y = el(b);
-      } else if (typeof el === 'string') {
-        x = dotPropGet(a, el);
-        y = dotPropGet(b, el);
-      } else {
-        x = a;
-        y = b;
-      }
-
-      if (x === y) {
-        ret = 0;
-        return;
-      }
-
-      if (typeof x === 'string' && typeof y === 'string') {
-        ret = x.localeCompare(y);
-        return ret !== 0;
-      }
-
-      ret = x < y ? -1 : 1;
-      return true;
-    });
-
-    return ret;
-  };
-}
-
-module.exports = compareFunc;
-
-
-/***/ }),
-
 /***/ 740:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -40493,19 +40100,6 @@ function getUserAgent() {
 
 exports.getUserAgent = getUserAgent;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 804:
-/***/ (function(module) {
-
-"use strict";
-
-module.exports = function (x) {
-	var type = typeof x;
-	return x !== null && (type === 'object' || type === 'function');
-};
 
 
 /***/ }),
@@ -54370,52 +53964,6 @@ function paginationMethodsPlugin (octokit) {
 
 /***/ }),
 
-/***/ 851:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-"use strict";
-
-const Q = __webpack_require__(885)
-const _ = __webpack_require__(557)
-const conventionalChangelog = __webpack_require__(193)
-const parserOpts = __webpack_require__(239)
-const recommendedBumpOpts = __webpack_require__(995)
-const writerOpts = __webpack_require__(579)
-
-module.exports = function (parameter) {
-  // parameter passed can be either a config object or a callback function
-  if (_.isFunction(parameter)) {
-    // parameter is a callback object
-    const config = {}
-    // FIXME: use presetOpts(config) for callback
-    Q.all([
-      conventionalChangelog(config),
-      parserOpts(config),
-      recommendedBumpOpts(config),
-      writerOpts(config)
-    ]).spread((conventionalChangelog, parserOpts, recommendedBumpOpts, writerOpts) => {
-      parameter(null, { gitRawCommitsOpts: { noMerges: null }, conventionalChangelog, parserOpts, recommendedBumpOpts, writerOpts })
-    })
-  } else {
-    const config = parameter || {}
-    return presetOpts(config)
-  }
-}
-
-function presetOpts (config) {
-  return Q.all([
-    conventionalChangelog(config),
-    parserOpts(config),
-    recommendedBumpOpts(config),
-    writerOpts(config)
-  ]).spread((conventionalChangelog, parserOpts, recommendedBumpOpts, writerOpts) => {
-    return { conventionalChangelog, parserOpts, recommendedBumpOpts, writerOpts }
-  })
-}
-
-
-/***/ }),
-
 /***/ 854:
 /***/ (function(module) {
 
@@ -57063,18 +56611,6 @@ module.exports = function (str) {
 		arg :
 		bin + (arg ? ' ' + arg : '')
 	);
-};
-
-
-/***/ }),
-
-/***/ 877:
-/***/ (function(module) {
-
-"use strict";
-
-module.exports = function(val) {
-  return Array.isArray(val) ? val : [val];
 };
 
 

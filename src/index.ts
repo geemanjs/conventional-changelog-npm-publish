@@ -3,12 +3,13 @@ import * as sh from '@actions/exec';
 import * as core from '@actions/core';
 import {getCommitMessages, getRawCommitMessages} from "./commits";
 import conventional from 'conventional-recommended-bump';
-import 'conventional-changelog-conventionalcommits';
+import changelog from 'conventional-changelog-conventionalcommits/conventional-recommended-bump';
 
 async function run() {
   try {
     console.log(github.context.sha)
     console.log(github.context)
+    console.log(changelog);
 
     const commits = getCommitMessages();
     // const versionBump = commits.reduce((agg, commit) => {
@@ -16,7 +17,7 @@ async function run() {
     // }, "patch")
 
     conventional({
-      preset: 'conventionalcommits'
+      whatBump: changelog().whatBump
     }, (error, recommendation) => {
       console.log(error, recommendation)
     })
