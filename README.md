@@ -51,3 +51,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+### Future work
+* [ ] Push release also to github releases tab (should be a simple api call)
+* [ ] `conventional-recommended-bump` supports different commit message models (but I couldn't get the `preset` to work)
+* [ ] This library uses `exec` for most of its work making it near impossible to test - everything else sits within external libraries.
