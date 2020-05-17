@@ -2,7 +2,7 @@ import * as github from '@actions/github';
 import * as sh from '@actions/exec';
 import * as core from '@actions/core';
 import {getCommitMessages, getRawCommitMessages} from "./commits";
-import conventional from 'conventional-recommended-bump';
+const conventional = require('conventional-recommended-bump');
 
 async function run() {
   try {
@@ -13,7 +13,7 @@ async function run() {
     console.log(getRawCommitMessages());
     console.log("----------");
     console.log(getCommitMessages());
-    console.log("----------");
+    console.log("-----------");
 
     conventional({}, (error, recommendation) => {
       console.log(recommendation.releaseType);
