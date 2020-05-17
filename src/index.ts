@@ -19,7 +19,7 @@ function getRecommendation(): Promise<{ level: number, reason: string, releaseTy
 
 async function run() {
   try {
-    if (skipCi) {
+    if (skipCi()) {
       core.setOutput("skip", true);
       return;
     }
