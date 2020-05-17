@@ -14840,6 +14840,7 @@ const sh = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const commits_1 = __webpack_require__(792);
 const conventional_recommended_bump_1 = __importDefault(__webpack_require__(398));
+__webpack_require__(938);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -62080,6 +62081,14 @@ function hasNextPage (link) {
   deprecate(`octokit.hasNextPage() – You can use octokit.paginate or async iterators instead: https://github.com/octokit/rest.js#pagination.`)
   return getPageLinks(link).next
 }
+
+
+/***/ }),
+
+/***/ 938:
+/***/ (function(module) {
+
+module.exports = eval("require")("conventionalcommits");
 
 
 /***/ }),

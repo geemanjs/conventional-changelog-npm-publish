@@ -3,6 +3,7 @@ import * as sh from '@actions/exec';
 import * as core from '@actions/core';
 import {getCommitMessages, getRawCommitMessages} from "./commits";
 import conventional from 'conventional-recommended-bump';
+import 'conventionalcommits';
 
 async function run() {
   try {
