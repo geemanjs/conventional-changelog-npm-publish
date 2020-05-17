@@ -25,6 +25,7 @@ async function run() {
       return;
     }
     const {releaseType} = await getRecommendation();
+    await sh.exec("git", ["status"])
     await sh.exec("npm", ["version", releaseType, "-m", `"[skip ci] Bumping version by ${releaseType}"`]);
     await sh.exec("npm", ["publish"]);
     await sh.exec("git", ["push"]);
