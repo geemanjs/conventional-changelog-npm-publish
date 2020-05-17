@@ -8545,6 +8545,8 @@ function run() {
                 return;
             }
             const { releaseType } = yield getRecommendation();
+            yield sh.exec("git", ["config", "--global", "user.email", `"conventional-changelog-npm-publish@noreply.github.com"`]);
+            yield sh.exec("git", ["config", "--global", "user.name", `"conventional-changelog-npm-publish"`]);
             yield sh.exec("git", ["status"]);
             yield sh.exec("npm", ["version", releaseType, "-m", `"[skip ci] Bumping version by ${releaseType}"`]);
             yield sh.exec("npm", ["publish"]);

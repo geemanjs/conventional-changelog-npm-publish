@@ -24,7 +24,9 @@ async function run() {
       console.log("Commit contains [skip ci] so skipping this release")
       return;
     }
-    const {releaseType} = await getRecommendation();
+    const {releaseType} = await getRecommendation()
+    await sh.exec("git", ["config", "--global", "user.email", `"conventional-changelog-npm-publish@noreply.github.com"`])
+    await sh.exec("git", ["config", "--global", "user.name", `"conventional-changelog-npm-publish"`])
     await sh.exec("git", ["status"])
     await sh.exec("npm", ["version", releaseType, "-m", `"[skip ci] Bumping version by ${releaseType}"`]);
     await sh.exec("npm", ["publish"]);
