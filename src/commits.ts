@@ -1,7 +1,14 @@
 import * as github from '@actions/github';
 import * as parser from 'conventional-commits-parser';
 
-export function getCommitMessages() {
+interface Commit {
+  type: string,
+  subject: string,
+  header: string,
+  body: string
+}
+
+export function getCommitMessages(): Commit[] {
   const raw = getRawCommitMessages();
   return raw.map((rawCommitMessage) => parser.sync(rawCommitMessage))
 }

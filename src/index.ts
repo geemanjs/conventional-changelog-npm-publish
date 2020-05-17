@@ -9,15 +9,23 @@ async function run() {
     console.log(github.context.sha)
     console.log(github.context)
 
+    const commits = getCommitMessages();
+    // const versionBump = commits.reduce((agg, commit) => {
+    //   commit.type === ""
+    // }, "patch")
+
+    conventional({
+      preset: 'conventionalcommits'
+    }, (error, recommendation) => {
+      console.log(error, recommendation)
+    })
+
     console.log("----------");
     console.log(getRawCommitMessages());
     console.log("----------");
-    console.log(getCommitMessages());
+    console.log();
     console.log("-----------");
 
-    conventional({}, (error, recommendation) => {
-      console.log(recommendation.releaseType);
-    });
 
     await sh.exec("npm", ["--version"]);
     await sh.exec("npm config get registry")

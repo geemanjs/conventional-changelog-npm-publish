@@ -14845,14 +14845,20 @@ function run() {
         try {
             console.log(github.context.sha);
             console.log(github.context);
+            const commits = commits_1.getCommitMessages();
+            // const versionBump = commits.reduce((agg, commit) => {
+            //   commit.type === ""
+            // }, "patch")
+            conventional_recommended_bump_1.default({
+                preset: 'conventionalcommits'
+            }, (error, recommendation) => {
+                console.log(error, recommendation);
+            });
             console.log("----------");
             console.log(commits_1.getRawCommitMessages());
             console.log("----------");
-            console.log(commits_1.getCommitMessages());
+            console.log();
             console.log("-----------");
-            conventional_recommended_bump_1.default({}, (error, recommendation) => {
-                console.log(recommendation.releaseType);
-            });
             yield sh.exec("npm", ["--version"]);
             yield sh.exec("npm config get registry");
         }
