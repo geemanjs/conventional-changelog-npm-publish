@@ -1,6 +1,19 @@
 name: 'Conventional changelog npm publish'
 description: 'Based upon a conventional changelog, versions and publishes a new npm package to the registry'
 author: 'James Gee'
+inputs:
+  author_email:
+    description: 'After the version is incremented - the user that makes the commit'
+    required: false
+    default: 'conventional-changelog-npm-publish@noreply.github.com'
+  author_name:
+    description: 'After the version is incremented - the user that makes the commit'
+    required: false
+    default: 'conventional-changelog-npm-publish'
+  commit_message:
+    description: 'Commit message - [VERSION_TYPE] is replaced with either patch, minor or major'
+    required: false
+    default: 'Bumping [VERSION_TYPE] version'
 runs:
   using: 'node12'
   main: 'dist/index.js'
