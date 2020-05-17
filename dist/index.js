@@ -8539,8 +8539,9 @@ function getRecommendation() {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (skip_ci_1.default) {
+            if (skip_ci_1.default()) {
                 core.setOutput("skip", true);
+                console.log("Commit contains [skip ci] so skipping this release");
                 return;
             }
             const { releaseType } = yield getRecommendation();

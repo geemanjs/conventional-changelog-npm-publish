@@ -21,6 +21,7 @@ async function run() {
   try {
     if (skipCi()) {
       core.setOutput("skip", true);
+      console.log("Commit contains [skip ci] so skipping this release")
       return;
     }
     const {releaseType} = await getRecommendation();
