@@ -14,6 +14,7 @@
     "@actions/exec": "^1.0.4",
     "@actions/github": "^2.2.0",
     "conventional-changelog-conventionalcommits": "^4.3.0",
+    "conventional-changelog-preset-loader": "^2.3.4",
     "conventional-commits-parser": "^3.1.0",
     "conventional-recommended-bump": "^6.0.9"
   },
