@@ -1,0 +1,23 @@
+{
+  "name": "conventional-changelog-npm-publish",
+  "version": "0.0.1",
+  "description": "Bumps version & publishes npm packages based upon conventional commit messages",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc && ncc build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4",
+    "@actions/github": "^2.2.0",
+    "conventional-commits-parser": "^3.1.0",
+    "conventional-recommended-bump": "^6.0.9"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
+    "typescript": "^3.9.2"
+  }
+}
