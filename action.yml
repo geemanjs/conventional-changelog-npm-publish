@@ -1,11 +1,6 @@
 name: 'Conventional changelog npm publish'
 description: 'Based upon a conventional changelog, versions and publishes a new npm package to the registry'
 author: 'James Gee'
-inputs:
-
-outputs:
-
-
 runs:
   using: 'node12'
   main: 'dist/index.js'
