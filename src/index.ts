@@ -17,7 +17,8 @@ async function run() {
     // }, "patch")
 
     conventional({
-      whatBump: changelog().whatBump
+
+      whatBump: changelog({}).whatBump
     }, (error, recommendation) => {
       console.log(error, recommendation)
     })
