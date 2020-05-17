@@ -1,4 +1,4 @@
-name: 'Conventional changelog npm publish'
+name: 'npm version and publish'
 description: 'Based upon a conventional changelog, versions and publishes a new npm package to the registry'
 branding:
   icon: box
