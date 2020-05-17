@@ -2,7 +2,7 @@ import * as github from '@actions/github';
 import * as sh from '@actions/exec';
 import * as core from '@actions/core';
 import {getCommitMessages, getRawCommitMessages} from "./commits";
-const conventional = require('conventional-recommended-bump');
+import conventional from 'conventional-recommended-bump';
 
 async function run() {
   try {

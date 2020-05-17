@@ -14831,12 +14831,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const github = __importStar(__webpack_require__(469));
 const sh = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const commits_1 = __webpack_require__(792);
-const conventional = __importStar(__webpack_require__(398));
+const conventional_recommended_bump_1 = __importDefault(__webpack_require__(398));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -14846,8 +14849,8 @@ function run() {
             console.log(commits_1.getRawCommitMessages());
             console.log("----------");
             console.log(commits_1.getCommitMessages());
-            console.log("----------");
-            conventional({}, (error, recommendation) => {
+            console.log("-----------");
+            conventional_recommended_bump_1.default({}, (error, recommendation) => {
                 console.log(recommendation.releaseType);
             });
             yield sh.exec("npm", ["--version"]);
