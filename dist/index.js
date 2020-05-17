@@ -14907,7 +14907,7 @@ function run() {
             //   commit.type === ""
             // }, "patch")
             conventional_recommended_bump_1.default({
-                preset: 'conventionalcommits'
+                preset: 'conventional-commits'
                 // whatBump: changelog({}).whatBump
             }, (error, recommendation) => {
                 console.log(error, recommendation);
