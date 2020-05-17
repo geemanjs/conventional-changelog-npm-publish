@@ -19,7 +19,7 @@ async function run() {
     // }, "patch")
 
     conventional({
-      preset: 'conventionalcommits'
+      preset: 'conventional-commits'
       // whatBump: changelog({}).whatBump
     }, (error, recommendation) => {
       console.log(error, recommendation)
